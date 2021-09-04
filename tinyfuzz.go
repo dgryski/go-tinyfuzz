@@ -37,10 +37,15 @@ func Fuzz(f func([]byte) bool, config *Config) error {
 		bufferLen = config.Len
 	}
 
+	var maxIterations = defaultConfig.Count
+	if config.Count != 0 {
+		maxIterations = config.Count
+	}
+
 	data := make([]byte, bufferLen)
 	buf := make([]byte, bufferLen)
 
-	for i := 0; i < config.Count; i++ {
+	for i := 0; i < maxIterations; i++ {
 		l := bufferLen
 		if config.Len == 0 {
 			l = rand.Intn(bufferLen)
