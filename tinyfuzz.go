@@ -2,7 +2,6 @@
 package tinyfuzz
 
 import (
-	"encoding/binary"
 	"fmt"
 	"math/rand"
 
@@ -47,7 +46,7 @@ func Fuzz(f func([]byte) bool, config *Config) error {
 			l = rand.Intn(bufferLen)
 		}
 
-		fillBuffer(data, l)
+		rand.Read(data[:l])
 		// data might be modified by f(), keep our own copy
 		copy(buf[:l], data[:l])
 		if ok := f(buf[:l]); !ok {
@@ -68,18 +67,4 @@ func Fuzz(f func([]byte) bool, config *Config) error {
 	}
 
 	return nil
-}
-
-// fill data with l random bytes
-func fillBuffer(data []byte, l int) {
-	var i int
-	for i = 0; i+8 < l; i += 8 {
-		b := rand.Uint64()
-		binary.LittleEndian.PutUint64(data[i:], b)
-	}
-
-	for b := rand.Uint64(); i < l; i++ {
-		data[i] = byte(b)
-		b >>= 8
-	}
 }
